@@ -2,17 +2,36 @@
 
 // DOMの読み込み完了後に実行
 document.addEventListener('DOMContentLoaded', () => {
+    
+    /* ==========================================
+       30秒後のリダイレクト設定
+       ========================================== */
+    const REDIRECT_URL = "https://moracchi.github.io/Sponsorship-List/";
+    const REDIRECT_DELAY_MS = 30000; // 30秒 (ミリ秒指定)
+
+    setTimeout(() => {
+        // フェードアウト効果をつけて遷移（オプション）
+        document.body.style.transition = "opacity 1s ease";
+        document.body.style.opacity = "0";
+        
+        setTimeout(() => {
+            window.location.href = REDIRECT_URL;
+        }, 1000); // フェードアウト後に移動
+    }, REDIRECT_DELAY_MS);
+
+
+    /* ==========================================
+       背景パーティクル（雪・金粉）描画処理
+       ========================================== */
     const canvas = document.getElementById('bgCanvas');
     const ctx = canvas.getContext('2d');
 
     let width, height;
     let particles = [];
     
-    // 設定値
-    const PARTICLE_COUNT = 150; // 雪と金粉の数
-    const GOLD_RATIO = 0.3; // 3割を金色の粒子にする
+    const PARTICLE_COUNT = 180; // 少し増やしてリッチに
+    const GOLD_RATIO = 0.4; // 金色の割合を増加
 
-    // リサイズ処理
     const resize = () => {
         width = window.innerWidth;
         height = window.innerHeight;
@@ -20,7 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
         canvas.height = height;
     };
 
-    // パーティクルクラス
     class Particle {
         constructor() {
             this.init();
@@ -29,21 +47,20 @@ document.addEventListener('DOMContentLoaded', () => {
         init() {
             this.x = Math.random() * width;
             this.y = Math.random() * height;
-            // 奥行きを表現するためにサイズにランダム性を
-            this.size = Math.random() * 3 + 0.5; 
-            // 落下速度
-            this.speedY = Math.random() * 1 + 0.2;
+            // サイズに変化をつけて遠近感を出す
+            this.size = Math.random() * 3.5 + 0.5; 
+            this.speedY = Math.random() * 0.8 + 0.2;
             this.speedX = Math.random() * 0.6 - 0.3;
             
-            // 種類（雪か金粉か）
             this.isGold = Math.random() < GOLD_RATIO;
             
             if (this.isGold) {
-                this.color = `rgba(212, 175, 55, ${Math.random() * 0.5 + 0.2})`; // ゴールド
-                this.shadowBlur = 10;
+                // より明るいゴールド
+                this.color = `rgba(255, 215, 0, ${Math.random() * 0.6 + 0.3})`;
+                this.shadowBlur = 15; // 輝きを強く
             } else {
-                this.color = `rgba(255, 255, 255, ${Math.random() * 0.4 + 0.1})`; // 白（雪）
-                this.shadowBlur = 5;
+                this.color = `rgba(255, 255, 255, ${Math.random() * 0.5 + 0.1})`;
+                this.shadowBlur = 8;
             }
         }
 
@@ -51,7 +68,6 @@ document.addEventListener('DOMContentLoaded', () => {
             this.y += this.speedY;
             this.x += this.speedX;
 
-            // 画面外に出たらリセット（上に戻す）
             if (this.y > height) {
                 this.y = -10;
                 this.x = Math.random() * width;
@@ -65,16 +81,14 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
             ctx.fillStyle = this.color;
             
-            // グロー効果（処理が重くなる場合はオフに調整可能）
             ctx.shadowBlur = this.shadowBlur;
-            ctx.shadowColor = this.isGold ? '#ffd700' : '#ffffff';
+            ctx.shadowColor = this.isGold ? '#ffdf00' : '#ffffff';
             
             ctx.fill();
-            ctx.shadowBlur = 0; // リセット
+            ctx.shadowBlur = 0;
         }
     }
 
-    // 初期化
     const initParticles = () => {
         particles = [];
         for (let i = 0; i < PARTICLE_COUNT; i++) {
@@ -82,7 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // アニメーションループ
     const animate = () => {
         ctx.clearRect(0, 0, width, height);
         
@@ -94,13 +107,11 @@ document.addEventListener('DOMContentLoaded', () => {
         requestAnimationFrame(animate);
     };
 
-    // イベントリスナー設定
     window.addEventListener('resize', () => {
         resize();
-        initParticles(); // リサイズ時に再配置
+        initParticles();
     });
 
-    // 実行開始
     resize();
     initParticles();
     animate();
