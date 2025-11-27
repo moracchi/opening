@@ -1,27 +1,23 @@
 /* ファイル名: script.js */
 
-// DOMの読み込み完了後に実行
 document.addEventListener('DOMContentLoaded', () => {
     
     /* ==========================================
        30秒後のリダイレクト設定
        ========================================== */
     const REDIRECT_URL = "https://moracchi.github.io/Sponsorship-List/";
-    const REDIRECT_DELAY_MS = 30000; // 30秒 (ミリ秒指定)
+    const REDIRECT_DELAY_MS = 30000; 
 
     setTimeout(() => {
-        // フェードアウト効果をつけて遷移（オプション）
         document.body.style.transition = "opacity 1s ease";
         document.body.style.opacity = "0";
-        
         setTimeout(() => {
             window.location.href = REDIRECT_URL;
-        }, 1000); // フェードアウト後に移動
+        }, 1000); 
     }, REDIRECT_DELAY_MS);
 
-
     /* ==========================================
-       背景パーティクル（雪・金粉）描画処理
+       背景パーティクル描画処理（高輝度設定）
        ========================================== */
     const canvas = document.getElementById('bgCanvas');
     const ctx = canvas.getContext('2d');
@@ -29,8 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let width, height;
     let particles = [];
     
-    const PARTICLE_COUNT = 180; // 少し増やしてリッチに
-    const GOLD_RATIO = 0.4; // 金色の割合を増加
+    const PARTICLE_COUNT = 150; 
+    const GOLD_RATIO = 0.5; // 半分を金色に
 
     const resize = () => {
         width = window.innerWidth;
@@ -47,20 +43,21 @@ document.addEventListener('DOMContentLoaded', () => {
         init() {
             this.x = Math.random() * width;
             this.y = Math.random() * height;
-            // サイズに変化をつけて遠近感を出す
-            this.size = Math.random() * 3.5 + 0.5; 
+            // プロジェクター用にサイズを全体的に大きくする
+            this.size = Math.random() * 5.0 + 1.5; 
             this.speedY = Math.random() * 0.8 + 0.2;
             this.speedX = Math.random() * 0.6 - 0.3;
             
             this.isGold = Math.random() < GOLD_RATIO;
             
             if (this.isGold) {
-                // より明るいゴールド
-                this.color = `rgba(255, 215, 0, ${Math.random() * 0.6 + 0.3})`;
-                this.shadowBlur = 15; // 輝きを強く
+                // 明るいイエローゴールド
+                this.color = `rgba(255, 235, 100, ${Math.random() * 0.7 + 0.3})`;
+                this.shadowBlur = 20; // グローを強烈に
             } else {
-                this.color = `rgba(255, 255, 255, ${Math.random() * 0.5 + 0.1})`;
-                this.shadowBlur = 8;
+                // 純白
+                this.color = `rgba(255, 255, 255, ${Math.random() * 0.6 + 0.4})`;
+                this.shadowBlur = 10;
             }
         }
 
@@ -82,7 +79,8 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.fillStyle = this.color;
             
             ctx.shadowBlur = this.shadowBlur;
-            ctx.shadowColor = this.isGold ? '#ffdf00' : '#ffffff';
+            // 影の色も明るく
+            ctx.shadowColor = this.isGold ? '#ffffaa' : '#ffffff';
             
             ctx.fill();
             ctx.shadowBlur = 0;
@@ -99,10 +97,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const animate = () => {
         ctx.clearRect(0, 0, width, height);
         
+        // 合成モードを加算にして、重なった部分をより明るく光らせる
+        ctx.globalCompositeOperation = 'lighter'; 
+        
         particles.forEach(particle => {
             particle.update();
             particle.draw();
         });
+        
+        ctx.globalCompositeOperation = 'source-over'; // 戻す
 
         requestAnimationFrame(animate);
     };
